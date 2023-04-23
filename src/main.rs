@@ -2,6 +2,8 @@
 
 use eframe::egui;
 use rand::seq::SliceRandom;
+use std::{fs::File, path::Path};
+use wasm_bindgen::prelude::*;
 
 #[cfg(target_arch = "wasm32")]
 fn main() {
@@ -13,39 +15,50 @@ fn main() {
 
     let web_options = eframe::WebOptions::default();
 
+    let file_name = "prompts.json".to_string();
+
+    // let fr = web_sys::FileReaderSync::new().unwrap();
+    // fr.read_as_text(&web_sys::Blob::new().unwrap()).unwrap();
+
+    let file_path = Path::new(&file_name);
+    let file = File::open(&file_path).unwrap();
+
+    let database = serde_json::from_reader(file).expect("Could not read values.");
+
     wasm_bindgen_futures::spawn_local(async {
         eframe::start_web(
             "the_canvas_id", // hardcode it
             web_options,
-            Box::new(|_cc| Box::<Content>::default()),
+            Box::new(|_cc| Box::<Content>::new(Content::new(database))),
         )
         .await
         .expect("failed to start eframe");
     });
 }
 
+#[derive(serde::Deserialize)]
 struct Database {
-    pile1: Vec<String>,
-    pile2: Vec<String>,
-    pile3: Vec<String>,
+    A: Vec<String>,
+    B: Vec<String>,
+    C: Vec<String>,
 }
 
 impl Database {
-    fn new() -> Database {
-        // TODO: populate database with data from file
-        Database {
-            pile1: vec!["1".to_string(), "a".to_string(), "b".to_string()],
-            pile2: vec!["2".to_string(), "a".to_string(), "b".to_string()],
-            pile3: vec!["3".to_string(), "a".to_string(), "b".to_string()],
-        }
-    }
+    // fn new() -> Database {
+
+    // Database {
+    //     pile1: vec!["1".to_string(), "a".to_string(), "b".to_string()],
+    //     pile2: vec!["2".to_string(), "a".to_string(), "b".to_string()],
+    //     pile3: vec!["3".to_string(), "a".to_string(), "b".to_string()],
+    // }
+    // }
 
     fn random(&self) -> [String; 3] {
         let mut rng = rand::thread_rng();
         [
-            self.pile1.choose(&mut rng).unwrap().to_string(),
-            self.pile2.choose(&mut rng).unwrap().to_string(),
-            self.pile3.choose(&mut rng).unwrap().to_string(),
+            self.A.choose(&mut rng).unwrap().to_string(),
+            self.B.choose(&mut rng).unwrap().to_string(),
+            self.C.choose(&mut rng).unwrap().to_string(),
         ]
     }
 }
@@ -57,9 +70,8 @@ struct Content {
     db: Database,
 }
 
-impl Default for Content {
-    fn default() -> Self {
-        let db = Database::new();
+impl Content {
+    fn new(db: Database) -> Self {
         let [card1, card2, card3] = db.random();
         Content {
             card1,
@@ -68,9 +80,6 @@ impl Default for Content {
             db,
         }
     }
-}
-
-impl Content {
     fn randomize(&mut self) {
         [self.card1, self.card2, self.card3] = self.db.random();
     }
