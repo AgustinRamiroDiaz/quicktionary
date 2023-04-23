@@ -1,5 +1,9 @@
 {
-  "A": ["has at least 2 different vowels"],
-  "B": ["contains the letter J"],
+  "A": [
+    "has at least 2 different vowels",
+    "is 7 letters long",
+    "is 5 letters long"
+  ],
+  "B": ["contains the letter J", "starts with the letter N"],
   "C": ["associated with money", "associated with the number 7"]
 }
