@@ -1,0 +1,5 @@
+{
+  "A": ["has at least 2 different vowels"],
+  "B": ["contains the letter J"],
+  "C": ["associated with money", "associated with the number 7"]
+}
